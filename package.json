@@ -18,7 +18,7 @@
   "author": "Eryk Napierała",
   "license": "MIT",
   "engines": {
-    "node": "23.7.0",
+    "node": "22.x",
     "pnpm": "10.2.1"
   },
   "packageManager": "pnpm@10.2.1"
