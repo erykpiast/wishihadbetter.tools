@@ -72,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Failed to submit. Please try again later.");
       }
 
+      // @ts-expect-error Remove after implementing the endpoint
       form.reset();
     } catch (error) {
       showError(
