@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/wish",
+      "dest": "/api/wish",
+      "methods": ["GET", "POST"]
+    },
+    {
+      "src": "/assets/(.*).js",
+      "dest": "/assets/$1.js"
+    },
+    {
+      "src": "/assets/(.*).css",
+      "dest": "/assets/$1.css"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

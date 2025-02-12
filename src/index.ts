@@ -60,10 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData(form);
 
     try {
-      throw new Error("Submitting is not implemented yet, sorry! Stay tuned.");
-
-      // TODO: Replace with actual API endpoint
-      const response = await fetch("/api/submit-wish", {
+      const response = await fetch("/api/wish", {
         method: "POST",
         body: formData,
       });
@@ -72,7 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Failed to submit. Please try again later.");
       }
 
-      // @ts-expect-error Remove after implementing the endpoint
       form.reset();
     } catch (error) {
       showError(

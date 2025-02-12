@@ -5,6 +5,8 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true
-  }
+    "noEmit": true,
+    "moduleResolution": "Bundler"
+  },
+  "types": ["node"]
 }
