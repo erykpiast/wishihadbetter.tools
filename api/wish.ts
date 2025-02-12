@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { Redis } from "@upstash/redis";
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
   throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY must be set");
@@ -8,6 +9,28 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
+
+if (
+  !process.env.UPSTASH_REDIS_KV_REST_API_URL ||
+  !process.env.UPSTASH_REDIS_KV_REST_API_TOKEN
+) {
+  throw new Error(
+    "UPSTASH_REDIS_KV_REST_API_URL and UPSTASH_REDIS_KV_REST_API_TOKEN must be set"
+  );
+}
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_KV_REST_API_URL,
+  token: process.env.UPSTASH_REDIS_KV_REST_API_TOKEN,
+});
+
+function extractOriginalIp(xForwardedFor: string | null): string | null {
+  if (!xForwardedFor) {
+    return null;
+  }
+
+  return xForwardedFor.split(",")[0].trim();
+}
 
 export async function GET(): Promise<Response> {
   const { data: wishes, error } = await supabase.from("wishes").select("wish");
@@ -24,6 +47,28 @@ export async function GET(): Promise<Response> {
   return Response.json(wishes ?? [], { status: 200 });
 }
 export async function POST(req: Request): Promise<Response> {
+  const ipAddress = extractOriginalIp(req.headers.get("x-forwarded-for"));
+
+  if (!ipAddress) {
+    return Response.json({ error: "Missing IP address" }, { status: 400 });
+  }
+
+  try {
+    const ipCount = await redis.incr(ipAddress);
+    if (ipCount === 1) {
+      await redis.expire(ipAddress, 60);
+    }
+
+    if (ipCount > 10) {
+      return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
+    }
+  } catch (err) {
+    return Response.json(
+      { error: "Service unavailable, sorry!" },
+      { status: 503 }
+    );
+  }
+
   let wish: FormDataEntryValue | null;
   try {
     const formData = await req.formData();
