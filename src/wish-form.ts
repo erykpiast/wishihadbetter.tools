@@ -43,8 +43,10 @@ function showError(
 }
 
 export function handleWishForm() {
-  const form = document.getElementById("wishForm") as HTMLFormElement | null;
-  const input = document.getElementById("wishInput") as HTMLInputElement | null;
+  const form = document.getElementById("wish-form") as HTMLFormElement | null;
+  const input = document.getElementById(
+    "wish-input"
+  ) as HTMLInputElement | null;
 
   if (!form || !input) {
     throw new Error("Required elements not found");
