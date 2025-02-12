@@ -13,6 +13,8 @@ export async function GET(): Promise<Response> {
   const { data: wishes, error } = await supabase.from("wishes").select("wish");
 
   if (error) {
+    console.error(new Error("Database error", { cause: error }));
+
     return Response.json(
       { error: "Service unavailable, sorry!" },
       { status: 503 }
@@ -26,7 +28,9 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const formData = await req.formData();
     wish = formData.get("wish");
-  } catch {
+  } catch (err) {
+    console.error(new Error("Invalid form data", { cause: err }));
+
     return Response.json({ error: "Invalid form data" }, { status: 400 });
   }
 
@@ -43,6 +47,8 @@ export async function POST(req: Request): Promise<Response> {
   const { data, error } = await supabase.from("wishes").insert({ wish: wish });
 
   if (error) {
+    console.error(new Error("Database error", { cause: error }));
+
     return Response.json(
       { error: "Service unavailable, sorry!" },
       { status: 503 }
