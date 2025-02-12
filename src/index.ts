@@ -77,6 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
               );
             }
           case 429:
+            form.reset();
+            input.disabled = true;
+            form
+              .querySelector("button[type=submit]")
+              ?.setAttribute("disabled", "disabled");
             throw new Error(
               "Hey! You cannot have THAT MANY wishes. That's enough."
             );
