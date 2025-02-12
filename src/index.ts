@@ -66,7 +66,29 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit. Please try again later.");
+        switch (response.status) {
+          case 400:
+            try {
+              const data = await response.json();
+              throw new Error(data.error);
+            } catch (error) {
+              throw new Error(
+                "Something went wrong with your wish. It may be our fault, sorry!"
+              );
+            }
+          case 429:
+            throw new Error(
+              "Hey! You cannot have THAT MANY wishes. That's enough."
+            );
+          case 503:
+            throw new Error(
+              "The service is unavailable. This is embarrassing, sorry! Please try again later."
+            );
+          default:
+            throw new Error(
+              "Failed to submit. It may be our fault, sorry! Please try again later."
+            );
+        }
       }
 
       form.reset();
@@ -74,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showError(
         error instanceof Error
           ? error.message
-          : "Something went wrong. Please try again.",
+          : "Something went wrong. Probably our fault, sorry! Please try again.",
         form,
         input
       );
