@@ -94,7 +94,9 @@ export async function POST(req: Request): Promise<Response> {
     Response.json({ wish }, { status: 201 });
   }
 
-  const { error } = await supabase.from("wishes").insert({ wish });
+  const { error } = await supabase
+    .from("wishes")
+    .insert({ wish, ip: ipAddress });
 
   if (error) {
     console.error(new Error("Database error", { cause: error }));
