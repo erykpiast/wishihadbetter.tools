@@ -89,7 +89,7 @@ export async function POST(req: Request): Promise<Response> {
       { status: 400 }
     );
   }
-  const { data, error } = await supabase.from("wishes").insert({ wish: wish });
+  const { error } = await supabase.from("wishes").insert({ wish });
 
   if (error) {
     console.error(new Error("Database error", { cause: error }));
@@ -100,5 +100,5 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  return Response.json({ data }, { status: 201 });
+  return Response.json({ wish }, { status: 201 });
 }
