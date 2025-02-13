@@ -343,6 +343,12 @@ footer {
   }
 }
 
+@property --order {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+
 .carousel {
   --frame-duration: 5s;
   --emoji-size: 6rem;
@@ -372,6 +378,7 @@ footer {
   scrollbar-width: none;
 
   & > li {
+    order: var(--order, 0);
     position: relative;
     width: 100%;
     height: 100%;
@@ -379,7 +386,7 @@ footer {
 
     scroll-snap-align: start;
 
-    transition: opacity .2s ease-in-out;
+    transition: opacity .1s ease-in-out;
 
     &.visible {
       opacity: 1;
