@@ -515,11 +515,12 @@ footer {
 
    animation: slideIn 0.3s ease-out;
 
-   &.expired {
-    animation: slideOut 0.3s ease-out;
-    animation-fill-mode: forwards;
+    &.expired {
+      animation: slideOut 0.3s ease-out;
+      animation-fill-mode: forwards;
+    }
   }
- }
+}
 
 @keyframes pulse {
   0% {

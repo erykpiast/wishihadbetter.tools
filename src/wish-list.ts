@@ -71,24 +71,27 @@ function renderWish(wish: { wish: string; time: string } | null): HTMLElement {
   return wishItem;
 }
 
-function showError(element: HTMLElement) {
+function showError(element: HTMLElement): Promise<void> {
   const error = document.createElement("output");
   error.classList.add("error-message");
   error.textContent =
     "Something went wrong with fetching wishes. It's probably our fault, sorry! Please try again later.";
   element.parentElement?.appendChild(error);
 
-  setTimeout(() => {
-    error.classList.add("expired");
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      error.classList.add("expired");
 
-    error.addEventListener(
-      "animationend",
-      () => {
-        error.remove();
-      },
-      { once: true }
-    );
-  }, 5000);
+      error.addEventListener(
+        "animationend",
+        () => {
+          error.remove();
+          resolve();
+        },
+        { once: true }
+      );
+    }, 5000);
+  });
 }
 
 function removePlaceholderWishes(firstPlaceholderWish: Element | null) {
@@ -176,27 +179,6 @@ function createPlaceholderWishes(
   return placeholderWishes;
 }
 
-async function loadNextWishes(
-  wishList: HTMLElement,
-  lastWishTime: string | null
-): Promise<string | null> {
-  const placeholderWishes = createPlaceholderWishes(wishList, PAGE_SIZE);
-
-  try {
-    const data = await fetchWishes(lastWishTime);
-
-    replacePlaceholderWishes(placeholderWishes[0], data);
-
-    return data[data.length - 1]?.time ?? null;
-  } catch (error) {
-    removePlaceholderWishes(placeholderWishes[0]);
-
-    showError(wishList);
-
-    return null;
-  }
-}
-
 export async function replaceWishFormWithWishList(
   form: HTMLFormElement,
   wish: string
@@ -212,35 +194,62 @@ export async function replaceWishFormWithWishList(
 
   form.parentElement?.replaceChild(wishList, form);
 
+  let wishListLoader: Promise<Array<{ wish: string; time: string }>> | null =
+    null;
+
+  let lastWishTime: string | null = null;
+
+  async function scrollHandler() {
+    if (wishListLoader || lastWishTime === null) {
+      return;
+    }
+
+    if (
+      // NOTE: start loading when the user is about the middle of the page
+      window.scrollY + window.innerHeight * 1.5 >=
+      document.body.scrollHeight
+    ) {
+      document.removeEventListener("scroll", scrollHandler);
+
+      const placeholderWishes = createPlaceholderWishes(wishList, PAGE_SIZE);
+
+      try {
+        wishListLoader = fetchWishes(lastWishTime);
+
+        const moreData = await wishListLoader;
+
+        replacePlaceholderWishes(placeholderWishes[0], moreData);
+
+        lastWishTime = moreData[moreData.length - 1]?.time ?? null;
+      } catch (error) {
+        removePlaceholderWishes(placeholderWishes[0]);
+
+        await showError(wishList);
+      } finally {
+        wishListLoader = null;
+
+        if (lastWishTime !== null) {
+          document.addEventListener("scroll", scrollHandler);
+        }
+      }
+    }
+  }
+
   try {
     const data = await fetchWishes(null);
 
+    lastWishTime = data[data.length - 1]?.time ?? null;
+
     replacePlaceholderWishes(placeholderWishes[0], data);
 
-    let wishListLoader: Promise<string | null> | null = null;
-
-    let lastWishTime: string | null = data[data.length - 1]?.time ?? null;
-
-    document.addEventListener("scroll", () => {
-      (async () => {
-        if (wishListLoader || lastWishTime === null) {
-          return;
-        }
-
-        if (
-          // NOTE: start loading when the user is about the middle of the page
-          window.scrollY + window.innerHeight * 1.5 >=
-          document.body.scrollHeight
-        ) {
-          wishListLoader = loadNextWishes(wishList, lastWishTime);
-          lastWishTime = await wishListLoader;
-          wishListLoader = null;
-        }
-      })();
-    });
+    if (lastWishTime !== null) {
+      document.addEventListener("scroll", scrollHandler, { passive: true });
+    }
   } catch (error) {
     removePlaceholderWishes(placeholderWishes[0]);
 
-    showError(wishList);
+    await showError(wishList);
+
+    document.addEventListener("scroll", scrollHandler, { passive: true });
   }
 }
