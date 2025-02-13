@@ -15,15 +15,15 @@ export const worker = setupWorker(
         time: "2025-02-12T12:00:00.000Z",
       },
       {
-        wish: "test2",
+        wish: "x".repeat(255),
         time: "2025-02-11T11:23:45.000Z",
       },
       {
-        wish: "test3",
+        wish: "y".repeat(5),
         time: "2025-02-10T10:12:34.000Z",
       },
       {
-        wish: "test4",
+        wish: "test5 ".repeat(42),
         time: "2025-02-09T09:01:23.000Z",
       },
       {

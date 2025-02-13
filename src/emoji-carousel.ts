@@ -68,7 +68,7 @@ export function createEmojiCarousel() {
       return;
     }
 
-    nextElement.scrollIntoView({ behavior: "smooth" });
+    nextElement.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   let scrollInterval = setInterval(scrollToNextItem, 5_000);

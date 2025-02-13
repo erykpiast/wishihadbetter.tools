@@ -33,7 +33,10 @@ function extractOriginalIp(xForwardedFor: string | null): string | null {
 }
 
 export async function GET(): Promise<Response> {
-  const { data: wishes, error } = await supabase.from("wishes").select("wish");
+  const { data: wishes, error } = await supabase
+    .from("wishes")
+    .select("wish, created_at")
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error(new Error("Database error", { cause: error }));
@@ -44,8 +47,14 @@ export async function GET(): Promise<Response> {
     );
   }
 
-  return Response.json(wishes ?? [], { status: 200 });
+  const wishesReponse = wishes.map((wish) => ({
+    wish: wish.wish,
+    time: wish.created_at,
+  }));
+
+  return Response.json(wishesReponse, { status: 200 });
 }
+
 export async function POST(req: Request): Promise<Response> {
   const ipAddress = extractOriginalIp(req.headers.get("x-forwarded-for"));
 

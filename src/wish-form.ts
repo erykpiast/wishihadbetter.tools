@@ -42,7 +42,9 @@ function showError(
   });
 }
 
-export function handleWishForm() {
+export function handleWishForm(
+  onSubmit: (form: HTMLFormElement, wish: string) => void
+) {
   const form = document.getElementById("wish-form") as HTMLFormElement | null;
   const input = document.getElementById(
     "wish-input"
@@ -99,6 +101,8 @@ export function handleWishForm() {
       }
 
       form.reset();
+
+      onSubmit(form, formData.get("wish") as string);
     } catch (error) {
       showError(
         error instanceof Error

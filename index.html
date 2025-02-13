@@ -11,7 +11,7 @@
 
 <body>
     <header>
-        <ul class="carousel" id="tools-carousel">
+        <ul class="carousel" id="tools-carousel" tabindex="-1">
             <li class="visible">🪛</li>
         </ul>
     </header>
@@ -37,6 +37,15 @@
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
+    <template id="wishes-list-template">
+        <ul class="wishes">
+        </ul>
+    </template>
+    <template id="wish-template">
+        <li class="wish">
+            <p></p><time></time>
+        </li>
+    </template>
 </body>
 
 </html>
