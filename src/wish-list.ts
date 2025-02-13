@@ -71,11 +71,24 @@ function renderWish(wish: { wish: string; time: string } | null): HTMLElement {
   return wishItem;
 }
 
-function showError(message: string, element: HTMLElement) {
+function showError(element: HTMLElement) {
   const error = document.createElement("output");
   error.classList.add("error-message");
-  error.textContent = message;
-  element.appendChild(error);
+  error.textContent =
+    "Something went wrong with fetching wishes. It's probably our fault, sorry! Please try again later.";
+  element.parentElement?.appendChild(error);
+
+  setTimeout(() => {
+    error.classList.add("expired");
+
+    error.addEventListener(
+      "animationend",
+      () => {
+        error.remove();
+      },
+      { once: true }
+    );
+  }, 5000);
 }
 
 function removePlaceholderWishes(firstPlaceholderWish: Element | null) {
@@ -178,14 +191,7 @@ async function loadNextWishes(
   } catch (error) {
     removePlaceholderWishes(placeholderWishes[0]);
 
-    if (error instanceof Error) {
-      showError(error.message, wishList);
-    } else {
-      showError(
-        "Something went wrong. It's probably our fault, sorry! Please try again later.",
-        wishList
-      );
-    }
+    showError(wishList);
 
     return null;
   }
@@ -235,13 +241,6 @@ export async function replaceWishFormWithWishList(
   } catch (error) {
     removePlaceholderWishes(placeholderWishes[0]);
 
-    if (error instanceof Error) {
-      showError(error.message, wishList);
-    } else {
-      showError(
-        "Something went wrong. It's probably our fault, sorry! Please try again later.",
-        wishList
-      );
-    }
+    showError(wishList);
   }
 }
