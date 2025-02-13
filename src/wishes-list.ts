@@ -8,9 +8,13 @@ const todayFormatter = new Intl.DateTimeFormat("en-US", {
   timeStyle: "short",
 });
 
-function renderWishesList(
-  wishes: Array<{ wish: string; time: string } | null>
-): HTMLElement {
+const PAGE_SIZE = 10;
+
+function getNullArray(length: number): Array<null> {
+  return Array.from({ length }, () => null);
+}
+
+function createWishesList(): HTMLElement {
   const wishesListTemplate = document.getElementById("wishes-list-template");
   if (
     !wishesListTemplate ||
@@ -28,11 +32,6 @@ function renderWishesList(
     .firstElementChild as HTMLUListElement;
   if (!wishesList) {
     throw new Error("Wishes list not found");
-  }
-
-  for (const wish of wishes) {
-    const wishItem = renderWish(wish);
-    wishesList.appendChild(wishItem);
   }
 
   return wishesList;
@@ -82,59 +81,163 @@ function showError(message: string, element: HTMLElement) {
   element.appendChild(error);
 }
 
+function removePlaceholderWishes(firstPlaceholderWish: Element | null) {
+  let currentPlaceholderWish: Element | null = firstPlaceholderWish;
+
+  while (currentPlaceholderWish) {
+    const placeholderWishToRemove = currentPlaceholderWish;
+    currentPlaceholderWish = currentPlaceholderWish.nextElementSibling;
+    placeholderWishToRemove.remove();
+  }
+}
+
+function replacePlaceholderWishes(
+  firstPlaceholderWish: HTMLElement,
+  wishes: Array<{ wish: string; time: string }>
+) {
+  const wishesList = firstPlaceholderWish.parentElement;
+  if (!wishesList) {
+    throw new Error("Wishes list not found");
+  }
+
+  let currentPlaceholderWish: Element | null = firstPlaceholderWish;
+
+  for (const wish of wishes) {
+    if (
+      typeof wish !== "object" ||
+      wish === null ||
+      typeof wish.time !== "string" ||
+      typeof wish.wish !== "string"
+    ) {
+      throw new Error("Invalid response");
+    }
+
+    const wishItem = renderWish({
+      wish: wish.wish,
+      time: wish.time,
+    });
+
+    if (!currentPlaceholderWish) {
+      wishesList.appendChild(wishItem);
+    } else {
+      currentPlaceholderWish.replaceWith(wishItem);
+
+      currentPlaceholderWish = wishItem.nextElementSibling;
+    }
+  }
+
+  removePlaceholderWishes(currentPlaceholderWish);
+}
+
+async function fetchWishes(
+  lastWishTime: string | null
+): Promise<Array<{ wish: string; time: string }>> {
+  const matchRequestUrl = new URL("/api/wish", window.location.origin);
+  matchRequestUrl.searchParams.set("limit", PAGE_SIZE.toString());
+  if (lastWishTime) {
+    matchRequestUrl.searchParams.set(
+      "cursor",
+      String(Date.parse(lastWishTime))
+    );
+  }
+
+  const response = await fetch(matchRequestUrl.toString());
+  const data = await response.json();
+
+  if (!Array.isArray(data)) {
+    throw new Error("Invalid response");
+  }
+
+  return data;
+}
+
+function createPlaceholderWishes(
+  wishesList: HTMLElement,
+  pageSize: number
+): Array<HTMLElement> {
+  const placeholderWishes: Array<HTMLElement> = [];
+
+  for (const wish of getNullArray(pageSize)) {
+    const wishItem = renderWish(wish);
+    placeholderWishes.push(wishItem);
+    wishesList.appendChild(wishItem);
+  }
+
+  return placeholderWishes;
+}
+
+async function loadNextWishes(
+  wishesList: HTMLElement,
+  lastWishTime: string | null
+): Promise<string | null> {
+  const placeholderWishes = createPlaceholderWishes(wishesList, PAGE_SIZE);
+
+  try {
+    const data = await fetchWishes(lastWishTime);
+
+    replacePlaceholderWishes(placeholderWishes[0], data);
+
+    return data[data.length - 1]?.time ?? null;
+  } catch (error) {
+    removePlaceholderWishes(placeholderWishes[0]);
+
+    if (error instanceof Error) {
+      showError(error.message, wishesList);
+    } else {
+      showError(
+        "Something went wrong. It's probably our fault, sorry! Please try again later.",
+        wishesList
+      );
+    }
+
+    return null;
+  }
+}
+
 export async function replaceWishFormWithWishesList(
   form: HTMLFormElement,
   wish: string
 ) {
-  const placeholderWishes = Array.from({ length: 10 }, () => null);
-  const wishesList = renderWishesList([
-    {
+  const wishesList = createWishesList();
+  const placeholderWishes = createPlaceholderWishes(wishesList, PAGE_SIZE - 1);
+  wishesList.prepend(
+    renderWish({
       wish,
       time: new Date().toISOString(),
-    },
-    ...placeholderWishes,
-  ]);
+    })
+  );
 
   form.parentElement?.replaceChild(wishesList, form);
 
   try {
-    const response = await fetch("/api/wish");
-    const data = await response.json();
+    const data = await fetchWishes(null);
 
-    if (!Array.isArray(data)) {
-      throw new Error("Invalid response");
-    }
+    replacePlaceholderWishes(placeholderWishes[0], data);
 
-    let currentPlaceholderWish = wishesList.firstElementChild;
+    let wishesListLoader: Promise<string | null> | null = null;
 
-    for (const wish of data) {
-      if (
-        typeof wish !== "object" ||
-        wish === null ||
-        typeof wish.time !== "string" ||
-        typeof wish.wish !== "string"
-      ) {
-        throw new Error("Invalid response");
-      }
+    let lastWishTime: string | null = data[data.length - 1]?.time ?? null;
 
-      const wishItem = renderWish({
-        wish: wish.wish,
-        time: wish.time,
-      });
+    document.addEventListener("scroll", () => {
+      (async () => {
+        if (wishesListLoader || lastWishTime === null) {
+          return;
+        }
 
-      if (!currentPlaceholderWish) {
-        wishesList.appendChild(wishItem);
-      } else {
-        currentPlaceholderWish.replaceWith(wishItem);
-
-        currentPlaceholderWish = wishItem.nextElementSibling;
-      }
-    }
-
-    wishesList.querySelectorAll(".placeholder").forEach((placeholder) => {
-      placeholder.remove();
+        if (
+          // NOTE: start loading when the user is about the middle of the page
+          window.scrollY + window.innerHeight * 1.5 >=
+          document.body.scrollHeight
+        ) {
+          wishesListLoader = loadNextWishes(wishesList, lastWishTime);
+          lastWishTime = await wishesListLoader;
+          wishesListLoader = null;
+        }
+      })();
     });
   } catch (error) {
+    removePlaceholderWishes(placeholderWishes[0]);
+
     if (error instanceof Error) {
       showError(error.message, wishesList);
     } else {
