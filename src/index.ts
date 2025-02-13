@@ -1,15 +1,15 @@
 import { createEmojiCarousel } from "./emoji-carousel";
 import { handleWishForm } from "./wish-form";
-import { replaceWishFormWithWishesList } from "./wishes-list";
+import { replaceWishFormWithWishList } from "./wish-list";
 
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("wish")) {
-    replaceWishFormWithWishesList(
+    replaceWishFormWithWishList(
       document.getElementById("wish-form") as HTMLFormElement,
       localStorage.getItem("wish") as string
     );
   } else {
-    handleWishForm(replaceWishFormWithWishesList);
+    handleWishForm(replaceWishFormWithWishList);
   }
 
   createEmojiCarousel();

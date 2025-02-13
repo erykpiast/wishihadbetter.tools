@@ -14,13 +14,10 @@ function getNullArray(length: number): Array<null> {
   return Array.from({ length }, () => null);
 }
 
-function createWishesList(): HTMLElement {
-  const wishesListTemplate = document.getElementById("wishes-list-template");
-  if (
-    !wishesListTemplate ||
-    !(wishesListTemplate instanceof HTMLTemplateElement)
-  ) {
-    throw new Error("Wishes list template not found");
+function createWishList(): HTMLElement {
+  const wishListTemplate = document.getElementById("wish-list-template");
+  if (!wishListTemplate || !(wishListTemplate instanceof HTMLTemplateElement)) {
+    throw new Error("Wish list template not found");
   }
 
   const main = document.querySelector("main");
@@ -28,13 +25,13 @@ function createWishesList(): HTMLElement {
     throw new Error("Main element not found");
   }
 
-  const wishesList = (wishesListTemplate.content.cloneNode(true) as HTMLElement)
+  const wishList = (wishListTemplate.content.cloneNode(true) as HTMLElement)
     .firstElementChild as HTMLUListElement;
-  if (!wishesList) {
-    throw new Error("Wishes list not found");
+  if (!wishList) {
+    throw new Error("Wish list not found");
   }
 
-  return wishesList;
+  return wishList;
 }
 
 function renderWish(wish: { wish: string; time: string } | null): HTMLElement {
@@ -95,9 +92,9 @@ function replacePlaceholderWishes(
   firstPlaceholderWish: HTMLElement,
   wishes: Array<{ wish: string; time: string }>
 ) {
-  const wishesList = firstPlaceholderWish.parentElement;
-  if (!wishesList) {
-    throw new Error("Wishes list not found");
+  const wishList = firstPlaceholderWish.parentElement;
+  if (!wishList) {
+    throw new Error("Wish list not found");
   }
 
   let currentPlaceholderWish: Element | null = firstPlaceholderWish;
@@ -118,7 +115,7 @@ function replacePlaceholderWishes(
     });
 
     if (!currentPlaceholderWish) {
-      wishesList.appendChild(wishItem);
+      wishList.appendChild(wishItem);
     } else {
       currentPlaceholderWish.replaceWith(wishItem);
 
@@ -152,7 +149,7 @@ async function fetchWishes(
 }
 
 function createPlaceholderWishes(
-  wishesList: HTMLElement,
+  wishList: HTMLElement,
   pageSize: number
 ): Array<HTMLElement> {
   const placeholderWishes: Array<HTMLElement> = [];
@@ -160,17 +157,17 @@ function createPlaceholderWishes(
   for (const wish of getNullArray(pageSize)) {
     const wishItem = renderWish(wish);
     placeholderWishes.push(wishItem);
-    wishesList.appendChild(wishItem);
+    wishList.appendChild(wishItem);
   }
 
   return placeholderWishes;
 }
 
 async function loadNextWishes(
-  wishesList: HTMLElement,
+  wishList: HTMLElement,
   lastWishTime: string | null
 ): Promise<string | null> {
-  const placeholderWishes = createPlaceholderWishes(wishesList, PAGE_SIZE);
+  const placeholderWishes = createPlaceholderWishes(wishList, PAGE_SIZE);
 
   try {
     const data = await fetchWishes(lastWishTime);
@@ -182,11 +179,11 @@ async function loadNextWishes(
     removePlaceholderWishes(placeholderWishes[0]);
 
     if (error instanceof Error) {
-      showError(error.message, wishesList);
+      showError(error.message, wishList);
     } else {
       showError(
         "Something went wrong. It's probably our fault, sorry! Please try again later.",
-        wishesList
+        wishList
       );
     }
 
@@ -194,33 +191,33 @@ async function loadNextWishes(
   }
 }
 
-export async function replaceWishFormWithWishesList(
+export async function replaceWishFormWithWishList(
   form: HTMLFormElement,
   wish: string
 ) {
-  const wishesList = createWishesList();
-  const placeholderWishes = createPlaceholderWishes(wishesList, PAGE_SIZE - 1);
-  wishesList.prepend(
+  const wishList = createWishList();
+  const placeholderWishes = createPlaceholderWishes(wishList, PAGE_SIZE - 1);
+  wishList.prepend(
     renderWish({
       wish,
       time: new Date().toISOString(),
     })
   );
 
-  form.parentElement?.replaceChild(wishesList, form);
+  form.parentElement?.replaceChild(wishList, form);
 
   try {
     const data = await fetchWishes(null);
 
     replacePlaceholderWishes(placeholderWishes[0], data);
 
-    let wishesListLoader: Promise<string | null> | null = null;
+    let wishListLoader: Promise<string | null> | null = null;
 
     let lastWishTime: string | null = data[data.length - 1]?.time ?? null;
 
     document.addEventListener("scroll", () => {
       (async () => {
-        if (wishesListLoader || lastWishTime === null) {
+        if (wishListLoader || lastWishTime === null) {
           return;
         }
 
@@ -229,9 +226,9 @@ export async function replaceWishFormWithWishesList(
           window.scrollY + window.innerHeight * 1.5 >=
           document.body.scrollHeight
         ) {
-          wishesListLoader = loadNextWishes(wishesList, lastWishTime);
-          lastWishTime = await wishesListLoader;
-          wishesListLoader = null;
+          wishListLoader = loadNextWishes(wishList, lastWishTime);
+          lastWishTime = await wishListLoader;
+          wishListLoader = null;
         }
       })();
     });
@@ -239,11 +236,11 @@ export async function replaceWishFormWithWishesList(
     removePlaceholderWishes(placeholderWishes[0]);
 
     if (error instanceof Error) {
-      showError(error.message, wishesList);
+      showError(error.message, wishList);
     } else {
       showError(
         "Something went wrong. It's probably our fault, sorry! Please try again later.",
-        wishesList
+        wishList
       );
     }
   }

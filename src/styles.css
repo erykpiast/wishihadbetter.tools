@@ -418,7 +418,7 @@ footer {
   }
 }
 
-.wishes {
+.wish-list {
   list-style: none;
   margin: 0;
   margin-bottom: calc(var(--footer-height) + 2 * var(--space-md));
