@@ -83,6 +83,15 @@ form {
   position: relative;
   width: var(--input-width);
 
+  &.submitted {
+      animation-name: fadeOut;
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+      animation-timing-function: ease-in-out;
+      animation-delay: 1s;
+      animation-fill-mode: forwards;
+  }
+
   & fieldset {
     display: flex;
     border: none;
@@ -106,6 +115,10 @@ form {
       outline: none;
       border-color: var(--color-primary);
       box-shadow: 0 0 0 2px var(--color-primary-focus);
+    }
+
+    &:disabled {
+      color: var(--color-text-muted);
     }
 
     &::placeholder {
@@ -197,15 +210,8 @@ form {
       transform: translate(-50%, -35%);
     }
 
-    &.submitted {
+    .submitted & {
       background-color: var(--color-secondary);
-      animation-name: fadeOut;
-      animation-duration: 1s;
-      animation-iteration-count: 1;
-      animation-timing-function: ease-in-out;
-      animation-delay: 1s;
-      animation-fill-mode: forwards;
-
       &::before {
         opacity: 0;
         transition: opacity 0.2s ease-in-out;

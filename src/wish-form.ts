@@ -109,17 +109,17 @@ export function handleWishForm(
         }
       }
 
-      input.disabled = false;
-      submitButton.removeAttribute("disabled");
-      form.reset();
-
       setTimeout(() => {
-        submitButton.classList.add("submitted");
+        input.disabled = false;
+        input.value = "Thank you for your submission!";
+        form.classList.add("submitted");
+
+        setTimeout(() => {
+          submitButton.removeAttribute("disabled");
+          form.reset();
+          onSubmit(form, formData.get("wish") as string);
+        }, 2000);
       }, 1000);
-
-      setTimeout(() => {
-        onSubmit(form, formData.get("wish") as string);
-      }, 2000);
     } catch (error) {
       showError(
         error instanceof Error
