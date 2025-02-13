@@ -94,6 +94,13 @@ function showError(element: HTMLElement): Promise<void> {
   });
 }
 
+function showEndOfWishes(element: HTMLElement) {
+  const endOfWishes = document.createElement("output");
+  endOfWishes.classList.add("end-of-wishes");
+  endOfWishes.textContent = "No more wishes!";
+  element.parentElement?.appendChild(endOfWishes);
+}
+
 function removePlaceholderWishes(firstPlaceholderWish: Element | null) {
   let currentPlaceholderWish: Element | null = firstPlaceholderWish;
 
@@ -200,7 +207,12 @@ export async function replaceWishFormWithWishList(
   let lastWishTime: string | null = null;
 
   async function scrollHandler() {
-    if (wishListLoader || lastWishTime === null) {
+    if (wishListLoader) {
+      return;
+    }
+
+    if (lastWishTime === null) {
+      showEndOfWishes(wishList);
       return;
     }
 
@@ -230,6 +242,8 @@ export async function replaceWishFormWithWishList(
 
         if (lastWishTime !== null) {
           document.addEventListener("scroll", scrollHandler);
+        } else {
+          showEndOfWishes(wishList);
         }
       }
     }
@@ -244,6 +258,8 @@ export async function replaceWishFormWithWishList(
 
     if (lastWishTime !== null) {
       document.addEventListener("scroll", scrollHandler, { passive: true });
+    } else {
+      showEndOfWishes(wishList);
     }
   } catch (error) {
     removePlaceholderWishes(placeholderWishes[0]);
