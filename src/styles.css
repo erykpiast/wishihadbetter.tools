@@ -333,6 +333,8 @@ footer {
     text-underline-offset: 4px;
     transition: color ease-in-out .2s;
 
+    white-space: nowrap;
+
     &:hover,
     &:focus {
       color: var(--color-text);
