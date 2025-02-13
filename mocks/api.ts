@@ -9,21 +9,34 @@ export const worker = setupWorker(
     });
   }),
   http.get("/api/wish", () => {
+    if (Math.random() < 0.2) {
+      return HttpResponse.json(
+        {
+          error: "Rate limit exceeded",
+        },
+        { status: 503 }
+      );
+    }
+
+    if (Math.random() < 0.1) {
+      return HttpResponse.json([]);
+    }
+
     return HttpResponse.json([
       {
-        wish: "test!",
+        wish: "test1",
         time: "2025-02-12T12:00:00.000Z",
       },
       {
-        wish: "x".repeat(255),
+        wish: "test3".repeat(51),
         time: "2025-02-11T11:23:45.000Z",
       },
       {
-        wish: "y".repeat(5),
+        wish: "test3",
         time: "2025-02-10T10:12:34.000Z",
       },
       {
-        wish: "test5 ".repeat(42),
+        wish: "test4 ".repeat(42),
         time: "2025-02-09T09:01:23.000Z",
       },
       {
@@ -48,19 +61,7 @@ export const worker = setupWorker(
       },
       {
         wish: "test10",
-        time: "2025-02-02T02:53:17.000Z",
-      },
-      {
-        wish: "test11",
-        time: "2025-02-01T01:42:06.000Z",
-      },
-      {
-        wish: "test12",
-        time: "2025-01-31T12:31:55.000Z",
-      },
-      {
-        wish: "test13",
-        time: "2025-01-30T11:20:44.000Z",
+        time: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
       },
     ]);
   })
