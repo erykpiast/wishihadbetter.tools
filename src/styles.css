@@ -2,6 +2,7 @@
 :root {
   /* Base colors - Light mode */
   --color-primary: hsl(215 100% 50%);
+  --color-secondary: hsl(145 70% 50%);
   --color-surface: hsl(0 0% 100%);
   --color-background: hsl(210 20% 98%);
   --color-text: hsl(215 25% 27%);
@@ -39,6 +40,7 @@
   :root {
     /* Base colors - Dark mode */
     --color-primary: hsl(215 100% 60%);
+    --color-secondary: hsl(145 70% 60%);
     --color-surface: hsl(215 25% 15%);
     --color-background: hsl(215 25% 10%);
     --color-text: hsl(215 25% 90%);
@@ -171,12 +173,51 @@ form {
       outline: 2px solid var(--color-focus-ring);
     }
 
+    &.submitting {
+      animation-name: pulse;
+      animation-duration: 1s;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
+    }
+        
+    &::after,
     &::before {
-      content: "↪";
       text-indent: 0;
       line-height: 1;
       font-size: var(--font-size-xl);
-      transform: translateY(15%);
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    &::before {
+      content: "↪";
+      transform: translate(-50%, -35%);
+    }
+
+    &.submitted {
+      background-color: var(--color-secondary);
+      animation-name: fadeOut;
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+      animation-timing-function: ease-in-out;
+      animation-delay: 1s;
+      animation-fill-mode: forwards;
+
+      &::before {
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+        z-index: 0;
+      }
+
+      &::after {
+        content: "✓";
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+        z-index: 1;
+      }
     }
   }
 
@@ -226,6 +267,24 @@ form {
   to {
     opacity: 0;
     transform: translateY(-50%);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -357,6 +416,12 @@ footer {
   
   background: var(--color-surface);
   color: var(--color-text);
+
+  animation-name: fadeIn;
+  animation-duration: 1s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
 
   & .wish {
     display: flex;

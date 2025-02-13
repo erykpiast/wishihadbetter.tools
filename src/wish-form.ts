@@ -54,6 +54,14 @@ export function handleWishForm(
     throw new Error("Required elements not found");
   }
 
+  const submitButton = form.querySelector(
+    "button[type=submit]"
+  ) as HTMLButtonElement | null;
+
+  if (!submitButton) {
+    throw new Error("Submit button not found");
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -62,6 +70,10 @@ export function handleWishForm(
     }
 
     const formData = new FormData(form);
+
+    input.disabled = true;
+    submitButton.setAttribute("disabled", "disabled");
+    submitButton.classList.add("submitting");
 
     try {
       const response = await fetch("/api/wish", {
@@ -82,10 +94,7 @@ export function handleWishForm(
             }
           case 429:
             form.reset();
-            input.disabled = true;
-            form
-              .querySelector("button[type=submit]")
-              ?.setAttribute("disabled", "disabled");
+
             throw new Error(
               "Hey! You cannot have THAT MANY wishes. That's enough."
             );
@@ -100,9 +109,17 @@ export function handleWishForm(
         }
       }
 
+      input.disabled = false;
+      submitButton.removeAttribute("disabled");
       form.reset();
 
-      onSubmit(form, formData.get("wish") as string);
+      setTimeout(() => {
+        submitButton.classList.add("submitted");
+      }, 1000);
+
+      setTimeout(() => {
+        onSubmit(form, formData.get("wish") as string);
+      }, 2000);
     } catch (error) {
       showError(
         error instanceof Error
