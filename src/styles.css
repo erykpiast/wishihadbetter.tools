@@ -158,11 +158,15 @@ form {
     width: 100%;
     height: var(--input-height);
     padding: var(--space-md);
+    padding-right: calc(var(--space-md)* 2 + var(--button-size));
+
     border: 1px solid var(--color-border);
     border-radius: var(--space-sm);
+
     background: var(--color-surface);
     color: var(--color-text);
     font-size: var(--font-size-lg);
+    
     transition: border-color 0.2s, box-shadow 0.2s;
 
     &:focus {

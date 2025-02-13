@@ -110,12 +110,11 @@ export function handleWishForm(
       }
 
       setTimeout(() => {
-        input.disabled = false;
-        input.value = "Thank you for your submission!";
         form.classList.add("submitted");
 
         setTimeout(() => {
           submitButton.removeAttribute("disabled");
+          input.disabled = false;
           form.reset();
           onSubmit(form, formData.get("wish") as string);
         }, 2000);
