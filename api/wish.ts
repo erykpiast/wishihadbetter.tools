@@ -32,11 +32,26 @@ function extractOriginalIp(xForwardedFor: string | null): string | null {
   return xForwardedFor.split(",")[0].trim();
 }
 
-export async function GET(): Promise<Response> {
+export async function GET(req: Request): Promise<Response> {
+  const searchParams = new URL(req.url).searchParams;
+  const limit = searchParams.get("limit");
+  const cursor = searchParams.get("cursor");
+
+  if (limit !== null && isNaN(Number(limit))) {
+    return Response.json({ error: "Invalid limit" }, { status: 400 });
+  }
+
+  if (cursor !== null && isNaN(Number(cursor))) {
+    return Response.json({ error: "Invalid cursor" }, { status: 400 });
+  }
+
+  const createdAt = cursor !== null ? new Date(Number(cursor)) : new Date();
   const { data: wishes, error } = await supabase
     .from("wishes")
     .select("wish, created_at")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .lt("created_at", createdAt.toISOString())
+    .limit(limit !== null ? Number(limit) : 10);
 
   if (error) {
     console.error(new Error("Database error", { cause: error }));
