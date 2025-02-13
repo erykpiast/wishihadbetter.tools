@@ -130,6 +130,10 @@ export async function replaceWishFormWithWishesList(
         currentPlaceholderWish = wishItem.nextElementSibling;
       }
     }
+
+    wishesList.querySelectorAll(".placeholder").forEach((placeholder) => {
+      placeholder.remove();
+    });
   } catch (error) {
     if (error instanceof Error) {
       showError(error.message, wishesList);
