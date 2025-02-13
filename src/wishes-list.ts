@@ -105,10 +105,7 @@ export async function replaceWishFormWithWishesList(
       throw new Error("Invalid response");
     }
 
-    const wishes: Array<{ wish: string; time: string }> = [];
-
-    let currentPlaceholderWish =
-      wishesList.firstElementChild?.nextElementSibling;
+    let currentPlaceholderWish = wishesList.firstElementChild;
 
     for (const wish of data) {
       if (
