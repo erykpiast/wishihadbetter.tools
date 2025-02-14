@@ -118,9 +118,11 @@ export async function POST(req: Request): Promise<Response> {
     Response.json({ wish }, { status: 201 });
   }
 
+  const country = req.headers.get("X-Vercel-IP-Country");
+
   const { error } = await supabase
     .from("wishes")
-    .insert({ wish, ip: ipAddress });
+    .insert({ wish, ip: ipAddress, country });
 
   if (error) {
     console.error(new Error("Database error", { cause: error }));
