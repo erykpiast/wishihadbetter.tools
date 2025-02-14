@@ -368,7 +368,7 @@ form {
       margin: 0;
 
       line-height: 1.2;
-      word-break: break-all;
+      word-break: break-word;
     }
 
     &:first-child {
