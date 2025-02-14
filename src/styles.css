@@ -20,7 +20,7 @@
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.25rem;
-  --font-size-xl: 1.5rem;
+  --font-size-xxl: 1.75rem;
 
   /* Spacing */
   --space-xs: 0.25rem;
@@ -254,18 +254,21 @@ form {
     &::after,
     &::before {
       text-indent: 0;
-      line-height: 1;
-      font-size: var(--font-size-xl);
+      line-height: var(--button-size);
+      font-family: 'Arial Unicode MS', Arial, Helvetica, sans-serif;
+      font-size: var(--font-size-xxl);
+      font-weight: 400;
 
+      bottom: 0;
+      left: 0;
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      right: 0;
+      text-align: center;
+      top: 0;
     }
 
     &::before {
-      content: "↪";
-      transform: translate(-50%, -35%);
+      content: "↪\FE0E";
     }
 
     .submitted & {
