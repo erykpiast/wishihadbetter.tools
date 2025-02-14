@@ -71,7 +71,7 @@ function renderWish(
     throw new Error("Wish item not found");
   }
 
-  const wishTextContainer = wishItem.querySelector("p");
+  const wishTextContainer = wishItem.querySelector("article");
   if (!wishTextContainer) {
     throw new Error("Wish text container not found");
   }
@@ -87,10 +87,14 @@ function renderWish(
   }
 
   if (wish) {
+    if (wishTextContainer.lastChild?.nodeType === Node.TEXT_NODE) {
+      (wishTextContainer.lastChild as Text).data = wish.wish;
+    } else {
+      wishTextContainer.appendChild(document.createTextNode(wish.wish));
+    }
+
     wishCountryContainer.textContent = countryCodeToFlagEmoji(wish.country);
     wishCountryContainer.setAttribute("title", wish.country);
-
-    wishTextContainer.textContent = wish.wish;
 
     const now = new Date();
     const wishDate = new Date(wish.time);
