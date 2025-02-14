@@ -75,60 +75,55 @@ export function createEmojiCarousel() {
 
   let scrollInterval = setInterval(scrollToNextItem, CAROUSEL_INTERVAL);
 
-  let userIsScrolling = false;
-
   carousel.addEventListener(
     "scroll",
     () => {
       clearInterval(scrollInterval);
       scrollInterval = setInterval(scrollToNextItem, CAROUSEL_INTERVAL);
-
-      userIsScrolling = true;
-      setTimeout(() => {
-        userIsScrolling = false;
-      }, 100);
     },
     { passive: true }
   );
 
   const observer = new IntersectionObserver(
     (entries) => {
-      entries.forEach((entry) => {
-        const index = Array.from(carousel.children).indexOf(entry.target);
-
-        if (entry.isIntersecting) {
-          // if (entry.target.classList.contains("visible")) {
-          //   return;
-          // }
-
-          entry.target.classList.add("visible");
-
-          // Determine scroll direction by comparing indices
-          if (index !== currentIndex) {
-            if (index > currentIndex) {
-              // Scrolling down, move first to last
-              carousel.appendChild(carousel.firstElementChild!);
-
-              // we just moved the first element to the end, so we need to adjust the current index
-              currentIndex = index - 1;
-            } else {
-              // Scrolling up, move last to first
-              carousel.insertBefore(
-                carousel.lastElementChild!,
-                carousel.firstElementChild
-              );
-
-              // we just moved the last element to the beginning, so we need to adjust the current index
-              currentIndex = index + 1;
-
-              // we need to scroll down to keep the current element in the original position
-              carousel.scrollTop += carousel.lastElementChild!.clientHeight;
-            }
-          }
-        } else {
-          entry.target.classList.remove("visible");
+      for (const entry of entries) {
+        if (!entry.isIntersecting) {
+          continue;
         }
-      });
+
+        const childrenArray = Array.from(carousel.children);
+        const index = childrenArray.indexOf(entry.target);
+
+        if (index === currentIndex) {
+          continue;
+        }
+
+        childrenArray[currentIndex].classList.remove("visible");
+        entry.target.classList.add("visible");
+
+        if (index > currentIndex) {
+          // Scrolling down, move first to last
+          carousel.appendChild(carousel.firstElementChild!);
+
+          // we just moved the first element to the end, so we need to adjust the current index
+          currentIndex = index - 1;
+        } else {
+          // Scrolling up, move last to first
+          carousel.insertBefore(
+            carousel.lastElementChild!,
+            carousel.firstElementChild
+          );
+
+          // we just moved the last element to the beginning, so we need to adjust the current index
+          currentIndex = index + 1;
+
+          // we need to scroll down to keep the current element in the original position
+          carousel.scrollTop += carousel.lastElementChild!.clientHeight;
+        }
+
+        // stop iteration through entries, with scroll snap there may be only one visible element
+        return;
+      }
     },
     {
       root: carousel,
