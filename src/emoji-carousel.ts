@@ -116,10 +116,12 @@ export function createEmojiCarousel() {
 
           // we just moved the last element to the beginning, so we need to adjust the current index
           currentIndex = index + 1;
-
-          // we need to scroll down to keep the current element in the original position
-          carousel.scrollTop += carousel.lastElementChild!.clientHeight;
         }
+
+        entry.target.scrollIntoView({
+          behavior: "instant",
+          block: "start",
+        });
 
         // stop iteration through entries, with scroll snap there may be only one visible element
         return;

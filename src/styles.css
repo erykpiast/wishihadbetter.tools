@@ -86,13 +86,16 @@ header {
 
   /* Box model */
   margin: 0;
-  padding: 0;
+  /* NOTE: the emoji vertical position isn't equal between opearting systems and not really controllable 
+   * so we need to leave some space around to avoid cutting off the bottom or the top part of the emoji
+   */
+  padding: var(--space-xs) 0;
+  line-height: 1.1;
   height: var(--emoji-size);
   width: var(--emoji-size);
 
   /* Typography */
   font-size: var(--emoji-size);
-  line-height: 1.1;
   list-style: none;
 
   /* Layout */
