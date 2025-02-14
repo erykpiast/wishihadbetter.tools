@@ -5,34 +5,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wish I Had Better Tools</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="What kind of good software do you miss the most? Share your wish here.">
+    <link rel="stylesheet" href="src/styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
     <header>
-        <ul class="carousel" id="tools-carousel">
+        <ul class="carousel" id="tools-carousel" tabindex="-1">
             <li class="visible">🪛</li>
         </ul>
     </header>
     <main>
-        <form class="wish-form" id="wishForm">
+        <form class="wish-form" id="wish-form">
             <fieldset class="wish-form__field">
-                <input autofocus autocomplete="off" type="text" id="wishInput" class="wish-form__input" name="wish"
+                <input autofocus autocomplete="off" type="text" id="wish-input" class="wish-form__input" name="wish"
                     placeholder="I wish I had a better tool for..." minlength="5" maxlength="255" required>
                 <label for="wishInput" class="wish-form__label">I wish I had a better tool for...</label>
-                <button type="submit" class="wish-form__submit">Submit</button>
+                <button type="submit" class="wish-form__submit"><span>Submit</span></button>
             </fieldset>
         </form>
     </main>
 
     <footer>
         <ul>
-            <li><a href="https://dev.to/erykpiast/wish-i-had-better-tools-329c">Rationale</a></li>
-            <li><a href="https://github.com/erykpiast/wishihadbetter.tools">Source</a></li>
+            <li><a href="https://erykpiast.substack.com/p/wish-i-had-better-tools">Backstory</a></li>
+            <li><a href="https://github.com/erykpiast/wishihadbetter.tools">Source code</a></li>
         </ul>
     </footer>
     <script type="module" src="src/index.ts"></script>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <template id="wish-list-template">
+        <ul class="wish-list">
+        </ul>
+    </template>
+    <template id="wish-template">
+        <li class="wish">
+            <p></p>
+            <address></address><time></time>
+        </li>
+    </template>
 </body>
 
 </html>
