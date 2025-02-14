@@ -192,12 +192,11 @@ export async function replaceWishFormWithWishList(
 ) {
   const wishList = createWishList();
   const placeholderWishes = createPlaceholderWishes(wishList, PAGE_SIZE - 1);
-  wishList.prepend(
-    renderWish({
-      wish,
-      time: new Date().toISOString(),
-    })
-  );
+  const optimisticWish = renderWish({
+    wish,
+    time: new Date().toISOString(),
+  });
+  wishList.prepend(optimisticWish);
 
   form.parentElement?.replaceChild(wishList, form);
 
@@ -254,7 +253,7 @@ export async function replaceWishFormWithWishList(
 
     lastWishTime = data[data.length - 1]?.time ?? null;
 
-    replacePlaceholderWishes(placeholderWishes[0], data);
+    replacePlaceholderWishes(optimisticWish, data);
 
     if (lastWishTime !== null) {
       document.addEventListener("scroll", scrollHandler, { passive: true });
