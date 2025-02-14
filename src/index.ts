@@ -2,7 +2,7 @@ import { createEmojiCarousel } from "./emoji-carousel";
 import { handleWishForm } from "./wish-form";
 import { replaceWishFormWithWishList } from "./wish-list";
 
-document.addEventListener("DOMContentLoaded", () => {
+function init() {
   if (localStorage.getItem("wish")) {
     replaceWishFormWithWishList(
       document.getElementById("wish-form") as HTMLFormElement,
@@ -13,7 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   createEmojiCarousel();
-});
+}
+
+if (document.readyState === "complete") {
+  init();
+} else {
+  document.addEventListener("DOMContentLoaded", init);
+}
 
 // @ts-ignore
 if (import.meta.env.DEV) {
