@@ -333,9 +333,13 @@ form {
   animation-fill-mode: forwards;
 
   & .wish {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: grid;
+    grid-template-areas:
+      "country time"
+      "wish wish";
+    grid-template-columns: auto min-content;
+    grid-template-rows: min-content min-content;
+    grid-gap: var(--space-sm);
 
     min-height: var(--input-height);
     padding: var(--space-md);
@@ -346,18 +350,24 @@ form {
     & time {
       font-size: var(--font-size-base);
 
-      align-self: flex-start;
-      margin-left: auto;
-      margin-right: var(--space-sm);
-      margin-top: var(--space-md);
+      grid-area: time;
 
-      padding-left: var(--space-md);
-      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    & address {
+      grid-area: country;
+
+      font-size: var(--font-size-md);
+      line-height: 1;
+      text-align: right;
     }
 
     & p {
+      grid-area: wish;
       margin: 0;
 
+      line-height: 1.2;
       word-break: break-all;
     }
 

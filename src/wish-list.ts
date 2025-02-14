@@ -14,6 +14,29 @@ function getNullArray(length: number): Array<null> {
   return Array.from({ length }, () => null);
 }
 
+function countryCodeToFlagEmoji(countryCode: string) {
+  const cc = countryCode.toUpperCase();
+
+  switch (cc) {
+    case "XX":
+      return "🏴‍☠️";
+    case "WR":
+      return "🌍";
+    case "A1":
+      return "🕵️";
+    case "A2":
+      return "🛰️";
+  }
+
+  if (cc.length === 2) {
+    const firstChar = cc.charCodeAt(0) - 65 + 0x1f1e6;
+    const secondChar = cc.charCodeAt(1) - 65 + 0x1f1e6;
+    return String.fromCodePoint(firstChar, secondChar);
+  }
+
+  return "🏴‍☠️";
+}
+
 function createWishList(): HTMLElement {
   const wishListTemplate = document.getElementById("wish-list-template");
   if (!wishListTemplate || !(wishListTemplate instanceof HTMLTemplateElement)) {
@@ -34,7 +57,9 @@ function createWishList(): HTMLElement {
   return wishList;
 }
 
-function renderWish(wish: { wish: string; time: string } | null): HTMLElement {
+function renderWish(
+  wish: { country: string; wish: string; time: string } | null
+): HTMLElement {
   const wishTemplate = document.getElementById("wish-template");
   if (!wishTemplate || !(wishTemplate instanceof HTMLTemplateElement)) {
     throw new Error("Wish template not found");
@@ -56,14 +81,30 @@ function renderWish(wish: { wish: string; time: string } | null): HTMLElement {
     throw new Error("Wish time container not found");
   }
 
+  const wishCountryContainer = wishItem.querySelector("address");
+  if (!wishCountryContainer) {
+    throw new Error("Wish country container not found");
+  }
+
   if (wish) {
+    wishCountryContainer.textContent = countryCodeToFlagEmoji(wish.country);
+    wishCountryContainer.setAttribute("title", wish.country);
+
     wishTextContainer.textContent = wish.wish;
+
+    const now = new Date();
+    const wishDate = new Date(wish.time);
+    const secondsAgo = Math.floor((now.getTime() - wishDate.getTime()) / 1000);
+
+    if (secondsAgo <= 10) {
+      wishTimeContainer.textContent = "now";
+    } else {
+      const dateFormatter =
+        wishDate.getDate() < now.getDate() ? pastDaysFormatter : todayFormatter;
+      wishTimeContainer.textContent = dateFormatter.format(wishDate);
+    }
+
     wishTimeContainer.setAttribute("datetime", wish.time);
-    const dateFormatter =
-      new Date(wish.time).getDate() < new Date().getDate()
-        ? pastDaysFormatter
-        : todayFormatter;
-    wishTimeContainer.textContent = dateFormatter.format(new Date(wish.time));
   } else {
     wishItem.classList.add("placeholder");
   }
@@ -113,7 +154,7 @@ function removePlaceholderWishes(firstPlaceholderWish: Element | null) {
 
 function replacePlaceholderWishes(
   firstPlaceholderWish: HTMLElement,
-  wishes: Array<{ wish: string; time: string }>
+  wishes: Array<{ country: string; wish: string; time: string }>
 ) {
   const wishList = firstPlaceholderWish.parentElement;
   if (!wishList) {
@@ -127,7 +168,8 @@ function replacePlaceholderWishes(
       typeof wish !== "object" ||
       wish === null ||
       typeof wish.time !== "string" ||
-      typeof wish.wish !== "string"
+      typeof wish.wish !== "string" ||
+      typeof wish.country !== "string"
     ) {
       throw new Error("Invalid response");
     }
@@ -135,6 +177,7 @@ function replacePlaceholderWishes(
     const wishItem = renderWish({
       wish: wish.wish,
       time: wish.time,
+      country: wish.country,
     });
 
     if (!currentPlaceholderWish) {
@@ -151,7 +194,7 @@ function replacePlaceholderWishes(
 
 async function fetchWishes(
   lastWishTime: string | null
-): Promise<Array<{ wish: string; time: string }>> {
+): Promise<Array<{ country: string; wish: string; time: string }>> {
   const matchRequestUrl = new URL("/api/wish", window.location.origin);
   matchRequestUrl.searchParams.set("limit", PAGE_SIZE.toString());
   if (lastWishTime) {
@@ -195,13 +238,15 @@ export async function replaceWishFormWithWishList(
   const optimisticWish = renderWish({
     wish,
     time: new Date().toISOString(),
+    country: "WR",
   });
   wishList.prepend(optimisticWish);
 
   form.parentElement?.replaceChild(wishList, form);
 
-  let wishListLoader: Promise<Array<{ wish: string; time: string }>> | null =
-    null;
+  let wishListLoader: Promise<
+    Array<{ country: string; wish: string; time: string }>
+  > | null = null;
 
   let lastWishTime: string | null = null;
 

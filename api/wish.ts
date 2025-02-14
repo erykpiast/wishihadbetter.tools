@@ -48,7 +48,7 @@ export async function GET(req: Request): Promise<Response> {
   const createdAt = cursor !== null ? new Date(Number(cursor)) : new Date();
   const { data: wishes, error } = await supabase
     .from("wishes")
-    .select("wish, created_at")
+    .select("wish, created_at, country")
     .order("created_at", { ascending: false })
     .lt("created_at", createdAt.toISOString())
     .limit(limit !== null ? Number(limit) : 10);
@@ -65,6 +65,7 @@ export async function GET(req: Request): Promise<Response> {
   const wishesReponse = wishes.map((wish) => ({
     wish: wish.wish,
     time: wish.created_at,
+    country: wish.country,
   }));
 
   return Response.json(wishesReponse, { status: 200 });
