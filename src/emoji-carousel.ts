@@ -1,8 +1,8 @@
-import KNOWN_TOOLS from "../api/tools";
+import KNOWN_TOOLS from "../api/tools.json" assert { type: "json" };
 
 export function createEmojiCarousel(): {
   displayNext: () => void;
-  getCurrent: () => string | null;
+  getCurrent: () => string;
 } {
   const carousel = document.getElementById("tools-carousel");
 
@@ -139,10 +139,10 @@ export function createEmojiCarousel(): {
         });
       }
     },
-    getCurrent(): string | null {
+    getCurrent(): string {
       const currentEmoji = getCurrentEmoji();
 
-      return currentEmoji?.textContent ?? null;
+      return currentEmoji?.textContent ?? KNOWN_TOOLS[0];
     },
   };
 }

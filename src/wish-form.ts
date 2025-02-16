@@ -43,11 +43,13 @@ function showError(
 }
 
 export function handleWishForm({
+  onBeforeSubmit,
   onSubmit,
   onInputInactivity,
 }: {
+  onBeforeSubmit: (formData: FormData) => void;
   onInputInactivity: () => void;
-  onSubmit: (form: HTMLFormElement, wish: string) => void;
+  onSubmit: (form: HTMLFormElement, wish: string, tool: string) => void;
 }) {
   const form = document.getElementById("wish-form") as HTMLFormElement | null;
   const input = document.getElementById(
@@ -89,6 +91,8 @@ export function handleWishForm({
     }
 
     const formData = new FormData(form);
+
+    onBeforeSubmit(formData);
 
     input.disabled = true;
     submitButton.setAttribute("disabled", "disabled");
@@ -136,7 +140,11 @@ export function handleWishForm({
           submitButton.removeAttribute("disabled");
           input.disabled = false;
           form.reset();
-          onSubmit(form, formData.get("wish") as string);
+          onSubmit(
+            form,
+            formData.get("wish") as string,
+            formData.get("tool") as string
+          );
         }, 2000);
       }, 1000);
     } catch (error) {

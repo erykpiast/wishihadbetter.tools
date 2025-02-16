@@ -362,7 +362,8 @@ form {
       white-space: nowrap;
     }
 
-    & address {
+    & address,
+    & span {
       font-size: var(--font-size-md);
     }
 
