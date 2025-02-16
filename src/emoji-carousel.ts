@@ -32,12 +32,17 @@ export function createEmojiCarousel(): {
   });
 
   const getCurrentEmoji = () => {
-    const carouselRect = carousel.getBoundingClientRect();
-
-    return document.elementFromPoint(
-      carouselRect.left + carouselRect.width / 2,
-      carouselRect.top + carouselRect.height / 2
+    const currentItemIndex = Math.floor(
+      carousel.scrollLeft / (carouselList.firstElementChild!.clientWidth * 2)
     );
+
+    const currentItem = carouselList.children[currentItemIndex];
+
+    if (!currentItem) {
+      return null;
+    }
+
+    return currentItem;
   };
 
   const handleScrollEnd = () => {
