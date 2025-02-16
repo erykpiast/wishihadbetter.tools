@@ -1,4 +1,9 @@
-export function createEmojiCarousel(): () => void {
+import KNOWN_TOOLS from "../api/tools";
+
+export function createEmojiCarousel(): {
+  displayNext: () => void;
+  getCurrent: () => string | null;
+} {
   const carousel = document.getElementById("tools-carousel");
 
   if (!carousel) {
@@ -11,47 +16,7 @@ export function createEmojiCarousel(): () => void {
     throw new Error("Carousel list not found");
   }
 
-  [
-    "🔨",
-    "🖱️",
-    "🔧",
-    "🛠️",
-    "🧰",
-    "🔬",
-    "⛏️",
-    "💻",
-    "🏗️",
-    "🦴",
-    "🔍",
-    "🪚",
-    "🔪",
-    "🪠",
-    "🧹",
-    "🩺",
-    "🪓",
-    "🎤",
-    "🎺",
-    "🎸",
-    "🎻",
-    "🥊",
-    "🧠",
-    "🗡",
-    "💉",
-    "📐",
-    "🧭",
-    "🧽",
-    "🦾",
-    "🛸",
-    "🚀",
-    "🗜️",
-    "🧲",
-    "🪜",
-    "🚽",
-    "🫖",
-    "📸",
-    "📣",
-    "🪄",
-  ]
+  KNOWN_TOOLS.slice(1)
     .sort(() => Math.random() - 0.5)
     .forEach((emoji) => {
       const li = document.createElement("li");
@@ -65,6 +30,13 @@ export function createEmojiCarousel(): () => void {
     behavior: "instant",
     block: "end",
   });
+
+  const getCurrentEmoji = () => {
+    return document.elementFromPoint(
+      carousel.offsetLeft + carousel.offsetWidth / 2,
+      carousel.offsetTop + carousel.offsetHeight / 2
+    );
+  };
 
   const handleScrollEnd = () => {
     const LOOP_ANIMATION_DELAY = 250;
@@ -157,16 +129,20 @@ export function createEmojiCarousel(): () => void {
 
   handleScrollEnd();
 
-  return () => {
-    const currentEmoji = document.elementFromPoint(
-      carousel.offsetLeft + carousel.offsetWidth / 2,
-      carousel.offsetTop + carousel.offsetHeight / 2
-    );
-    if (currentEmoji && currentEmoji.previousElementSibling) {
-      (currentEmoji.previousElementSibling as HTMLElement).scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
+  return {
+    displayNext(): void {
+      const currentEmoji = getCurrentEmoji();
+      if (currentEmoji && currentEmoji.previousElementSibling) {
+        (currentEmoji.previousElementSibling as HTMLElement).scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    },
+    getCurrent(): string | null {
+      const currentEmoji = getCurrentEmoji();
+
+      return currentEmoji?.textContent ?? null;
+    },
   };
 }
