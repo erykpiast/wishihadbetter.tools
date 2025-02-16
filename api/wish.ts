@@ -1,14 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { Redis } from "@upstash/redis";
-import { readFile } from "node:fs/promises";
-
+import fs from "node:fs";
+import path from "node:path";
 const KNOWN_TOOLS = JSON.parse(
-  await readFile("./tools.json", "utf-8")
+  fs.readFileSync(path.join(process.cwd(), "tools.json"), "utf-8")
 ) as string[];
-
-if (!Array.isArray(KNOWN_TOOLS) || KNOWN_TOOLS.length === 0) {
-  throw new Error("KNOWN_TOOLS must be an array and not empty");
-}
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
   throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY must be set");

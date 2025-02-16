@@ -1,4 +1,4 @@
-import KNOWN_TOOLS from "../api/tools.json" assert { type: "json" };
+import KNOWN_TOOLS from "../tools.json" assert { type: "json" };
 
 export function createEmojiCarousel(): {
   displayNext: () => void;
