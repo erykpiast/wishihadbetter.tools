@@ -42,9 +42,13 @@ function showError(
   });
 }
 
-export function handleWishForm(
-  onSubmit: (form: HTMLFormElement, wish: string) => void
-) {
+export function handleWishForm({
+  onSubmit,
+  onInputInactivity,
+}: {
+  onInputInactivity: () => void;
+  onSubmit: (form: HTMLFormElement, wish: string) => void;
+}) {
   const form = document.getElementById("wish-form") as HTMLFormElement | null;
   const input = document.getElementById(
     "wish-input"
@@ -61,6 +65,21 @@ export function handleWishForm(
   if (!submitButton) {
     throw new Error("Submit button not found");
   }
+
+  let inactivityTimeout: ReturnType<typeof setTimeout>;
+
+  function setInactivityTimeout() {
+    inactivityTimeout = setTimeout(() => {
+      onInputInactivity();
+    }, 5000);
+  }
+
+  setInactivityTimeout();
+
+  input.addEventListener("input", () => {
+    clearTimeout(inactivityTimeout);
+    setInactivityTimeout();
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -110,6 +129,7 @@ export function handleWishForm(
       }
 
       setTimeout(() => {
+        clearTimeout(inactivityTimeout);
         form.classList.add("submitted");
 
         setTimeout(() => {
