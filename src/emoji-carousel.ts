@@ -59,11 +59,9 @@ export function createEmojiCarousel(): () => void {
       carouselList.prepend(li);
     });
 
-  requestAnimationFrame(() => {
-    carouselList.lastElementChild!.scrollIntoView({
-      behavior: "instant",
-      block: "end",
-    });
+  carouselList.lastElementChild!.scrollIntoView({
+    behavior: "instant",
+    block: "end",
   });
 
   return () => {
