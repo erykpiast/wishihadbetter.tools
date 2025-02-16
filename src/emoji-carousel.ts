@@ -23,10 +23,10 @@ export function createEmojiCarousel(): {
       const span = document.createElement("span");
       span.textContent = emoji;
       li.appendChild(span);
-      carouselList.prepend(li);
+      carouselList.appendChild(li);
     });
 
-  carouselList.lastElementChild!.scrollIntoView({
+  carouselList.firstElementChild!.scrollIntoView({
     behavior: "instant",
     block: "end",
   });
@@ -62,11 +62,11 @@ export function createEmojiCarousel(): {
               return;
             }
 
-            if (firstElementChild && carousel.scrollTop === 0) {
+            if (firstElementChild && carousel.scrollLeft === 0) {
               const animation = firstElementChild.firstElementChild!.animate(
                 [
-                  { transform: "translateY(0)" },
-                  { transform: "translateY(100%)" },
+                  { transform: "translateX(0)" },
+                  { transform: "translateX(100%)" },
                 ],
                 LOOP_ANIMATION_DELAY
               );
@@ -89,13 +89,13 @@ export function createEmojiCarousel(): {
 
             if (
               lastElementChild &&
-              carousel.scrollTop >
-                carousel.scrollHeight - carousel.clientHeight - 5 // NOTE: 5 is a buffer for browser inconsistencies
+              carousel.scrollLeft >
+                carousel.scrollWidth - carousel.clientWidth - 5 // NOTE: 5 is a buffer for browser inconsistencies
             ) {
               const animation = lastElementChild.firstElementChild!.animate(
                 [
-                  { transform: "translateY(0)" },
-                  { transform: "translateY(-100%)" },
+                  { transform: "translateX(0)" },
+                  { transform: "translateX(-100%)" },
                 ],
                 LOOP_ANIMATION_DELAY
               );
@@ -143,8 +143,8 @@ export function createEmojiCarousel(): {
         currentEmoji = currentEmoji.parentElement;
       }
 
-      if (currentEmoji && currentEmoji.previousElementSibling) {
-        (currentEmoji.previousElementSibling as HTMLElement).scrollIntoView({
+      if (currentEmoji && currentEmoji.nextElementSibling) {
+        (currentEmoji.nextElementSibling as HTMLElement).scrollIntoView({
           behavior: "smooth",
           block: "center",
         });

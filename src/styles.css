@@ -91,10 +91,10 @@ header {
   width: var(--emoji-size);
   position: relative;
 
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: hidden;
+  overflow-x: scroll;
   user-select: none;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
 
   & ul {
@@ -110,11 +110,11 @@ header {
     list-style: none;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: var(--emoji-size);
 
     position: absolute;
-    bottom: 0;
+    bottom: left;
   }
 
   & li {
