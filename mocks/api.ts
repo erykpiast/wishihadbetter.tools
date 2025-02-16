@@ -27,51 +27,61 @@ export const worker = setupWorker(
         wish: "test1",
         time: "2025-02-12T12:00:00.000Z",
         country: "PL",
+        tool: "🪛",
       },
       {
         wish: "test3".repeat(51),
         time: "2025-02-11T11:23:45.000Z",
         country: "US",
+        tool: "🔧",
       },
       {
         wish: "test3",
         time: "2025-02-10T10:12:34.000Z",
         country: "DE",
+        tool: "🪛",
       },
       {
         wish: "test4 ".repeat(42),
         time: "2025-02-09T09:01:23.000Z",
         country: "CA",
+        tool: "🔨",
       },
       {
         wish: "test5",
         time: "2025-02-08T08:50:12.000Z",
         country: "KM",
+        tool: "🔪",
       },
       {
         wish: "test6",
         time: "2025-02-07T07:39:01.000Z",
         country: "UA",
+        tool: "🪚",
       },
       {
         wish: "test7",
         time: "2025-02-06T06:28:50.000Z",
         country: "GB",
+        tool: "🚽",
       },
       {
         wish: "test8",
         time: "2025-02-05T05:17:39.000Z",
         country: "PL",
+        tool: "🧠",
       },
       {
         wish: "test9",
         time: "2025-02-03T03:04:28.000Z",
         country: "BR",
+        tool: "🔍",
       },
       {
         wish: "test10",
         time: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
         country: "ES",
+        tool: "💻",
       },
     ]);
   })

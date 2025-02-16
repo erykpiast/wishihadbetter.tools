@@ -58,7 +58,7 @@ function createWishList(): HTMLElement {
 }
 
 function renderWish(
-  wish: { country: string; wish: string; time: string } | null
+  wish: { country: string; wish: string; time: string; tool: string } | null
 ): HTMLElement {
   const wishTemplate = document.getElementById("wish-template");
   if (!wishTemplate || !(wishTemplate instanceof HTMLTemplateElement)) {
@@ -86,6 +86,11 @@ function renderWish(
     throw new Error("Wish country container not found");
   }
 
+  const wishToolContainer = wishItem.querySelector("span");
+  if (!wishToolContainer) {
+    throw new Error("Wish tool container not found");
+  }
+
   if (wish) {
     if (wishTextContainer.lastChild?.nodeType === Node.TEXT_NODE) {
       (wishTextContainer.lastChild as Text).data = wish.wish;
@@ -109,6 +114,8 @@ function renderWish(
     }
 
     wishTimeContainer.setAttribute("datetime", wish.time);
+
+    wishToolContainer.textContent = wish.tool;
   } else {
     wishItem.classList.add("placeholder");
   }
@@ -158,7 +165,7 @@ function removePlaceholderWishes(firstPlaceholderWish: Element | null) {
 
 function replacePlaceholderWishes(
   firstPlaceholderWish: HTMLElement,
-  wishes: Array<{ country: string; wish: string; time: string }>
+  wishes: Array<{ country: string; wish: string; time: string; tool: string }>
 ) {
   const wishList = firstPlaceholderWish.parentElement;
   if (!wishList) {
@@ -171,17 +178,19 @@ function replacePlaceholderWishes(
     if (
       typeof wish !== "object" ||
       wish === null ||
+      typeof wish.country !== "string" ||
+      typeof wish.tool !== "string" ||
       typeof wish.time !== "string" ||
-      typeof wish.wish !== "string" ||
-      typeof wish.country !== "string"
+      typeof wish.wish !== "string"
     ) {
       throw new Error("Invalid response");
     }
 
     const wishItem = renderWish({
-      wish: wish.wish,
-      time: wish.time,
       country: wish.country,
+      time: wish.time,
+      tool: wish.tool,
+      wish: wish.wish,
     });
 
     if (!currentPlaceholderWish) {
@@ -198,7 +207,9 @@ function replacePlaceholderWishes(
 
 async function fetchWishes(
   lastWishTime: string | null
-): Promise<Array<{ country: string; wish: string; time: string }>> {
+): Promise<
+  Array<{ country: string; wish: string; time: string; tool: string }>
+> {
   const matchRequestUrl = new URL("/api/wish", window.location.origin);
   matchRequestUrl.searchParams.set("limit", PAGE_SIZE.toString());
   if (lastWishTime) {
@@ -235,7 +246,8 @@ function createPlaceholderWishes(
 
 export async function replaceWishFormWithWishList(
   form: HTMLFormElement,
-  wish: string
+  wish: string,
+  tool: string
 ) {
   const wishList = createWishList();
   const placeholderWishes = createPlaceholderWishes(wishList, PAGE_SIZE - 1);
@@ -243,13 +255,14 @@ export async function replaceWishFormWithWishList(
     wish,
     time: new Date().toISOString(),
     country: "WR",
+    tool,
   });
   wishList.prepend(optimisticWish);
 
   form.parentElement?.replaceChild(wishList, form);
 
   let wishListLoader: Promise<
-    Array<{ country: string; wish: string; time: string }>
+    Array<{ country: string; wish: string; time: string; tool: string }>
   > | null = null;
 
   let lastWishTime: string | null = null;

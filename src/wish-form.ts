@@ -42,9 +42,15 @@ function showError(
   });
 }
 
-export function handleWishForm(
-  onSubmit: (form: HTMLFormElement, wish: string) => void
-) {
+export function handleWishForm({
+  onBeforeSubmit,
+  onSubmit,
+  onInputInactivity,
+}: {
+  onBeforeSubmit: (formData: FormData) => void;
+  onInputInactivity: () => void;
+  onSubmit: (form: HTMLFormElement, wish: string, tool: string) => void;
+}) {
   const form = document.getElementById("wish-form") as HTMLFormElement | null;
   const input = document.getElementById(
     "wish-input"
@@ -62,6 +68,21 @@ export function handleWishForm(
     throw new Error("Submit button not found");
   }
 
+  let inactivityTimeout: ReturnType<typeof setTimeout>;
+
+  function setInactivityTimeout() {
+    inactivityTimeout = setTimeout(() => {
+      onInputInactivity();
+    }, 5000);
+  }
+
+  setInactivityTimeout();
+
+  input.addEventListener("input", () => {
+    clearTimeout(inactivityTimeout);
+    setInactivityTimeout();
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -70,6 +91,8 @@ export function handleWishForm(
     }
 
     const formData = new FormData(form);
+
+    onBeforeSubmit(formData);
 
     input.disabled = true;
     submitButton.setAttribute("disabled", "disabled");
@@ -110,13 +133,18 @@ export function handleWishForm(
       }
 
       setTimeout(() => {
+        clearTimeout(inactivityTimeout);
         form.classList.add("submitted");
 
         setTimeout(() => {
           submitButton.removeAttribute("disabled");
           input.disabled = false;
           form.reset();
-          onSubmit(form, formData.get("wish") as string);
+          onSubmit(
+            form,
+            formData.get("wish") as string,
+            formData.get("tool") as string
+          );
         }, 2000);
       }, 1000);
     } catch (error) {

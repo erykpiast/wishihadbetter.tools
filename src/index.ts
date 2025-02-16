@@ -3,16 +3,23 @@ import { handleWishForm } from "./wish-form";
 import { replaceWishFormWithWishList } from "./wish-list";
 
 function init() {
+  const { displayNext, getCurrent } = createEmojiCarousel();
+
   if (localStorage.getItem("wish")) {
     replaceWishFormWithWishList(
       document.getElementById("wish-form") as HTMLFormElement,
-      localStorage.getItem("wish") as string
+      localStorage.getItem("wish") as string,
+      "🪛"
     );
   } else {
-    handleWishForm(replaceWishFormWithWishList);
+    handleWishForm({
+      onBeforeSubmit(formData) {
+        formData.set("tool", getCurrent());
+      },
+      onSubmit: replaceWishFormWithWishList,
+      onInputInactivity: displayNext,
+    });
   }
-
-  createEmojiCarousel();
 }
 
 if (document.readyState === "complete") {

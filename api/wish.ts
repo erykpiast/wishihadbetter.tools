@@ -1,5 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { Redis } from "@upstash/redis";
+import fs from "node:fs";
+import path from "node:path";
+const KNOWN_TOOLS = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), "tools.json"), "utf-8")
+) as string[];
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
   throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY must be set");
@@ -48,7 +53,7 @@ export async function GET(req: Request): Promise<Response> {
   const createdAt = cursor !== null ? new Date(Number(cursor)) : new Date();
   const { data: wishes, error } = await supabase
     .from("wishes")
-    .select("wish, created_at, country")
+    .select("wish, created_at, country, tool")
     .order("created_at", { ascending: false })
     .lt("created_at", createdAt.toISOString())
     .limit(limit !== null ? Number(limit) : 10);
@@ -66,6 +71,7 @@ export async function GET(req: Request): Promise<Response> {
     wish: wish.wish,
     time: wish.created_at,
     country: wish.country,
+    tool: wish.tool,
   }));
 
   return Response.json(wishesReponse, { status: 200 });
@@ -95,9 +101,11 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   let wish: FormDataEntryValue | null;
+  let tool: FormDataEntryValue | null;
   try {
     const formData = await req.formData();
     wish = formData.get("wish");
+    tool = formData.get("tool");
   } catch (err) {
     console.error(new Error("Invalid form data", { cause: err }));
 
@@ -115,6 +123,17 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
+  if (typeof tool !== "string") {
+    return Response.json({ error: "Missing tool field" }, { status: 400 });
+  }
+
+  if (!KNOWN_TOOLS.includes(tool)) {
+    return Response.json(
+      { error: "What's that, I don't know this tool!" },
+      { status: 400 }
+    );
+  }
+
   if (wish === "test!") {
     Response.json({ wish }, { status: 201 });
   }
@@ -123,7 +142,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const { error } = await supabase
     .from("wishes")
-    .insert({ wish, ip: ipAddress, country });
+    .insert({ wish, ip: ipAddress, country, tool });
 
   if (error) {
     console.error(new Error("Database error", { cause: error }));
