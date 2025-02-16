@@ -91,6 +91,9 @@ export function handleWishForm({
       return;
     }
 
+
+    clearTimeout(inactivityTimeout);
+
     const formData = new FormData(form);
 
     onBeforeSubmit(formData);
@@ -118,6 +121,7 @@ export function handleWishForm({
             }
           case 429:
             form.reset();
+            setInactivityTimeout();
 
             throw new Error(
               "Hey! You cannot have THAT MANY wishes. That's enough."
@@ -134,7 +138,6 @@ export function handleWishForm({
       }
 
       setTimeout(() => {
-        clearTimeout(inactivityTimeout);
         form.classList.add("submitted");
 
         setTimeout(() => {
@@ -156,6 +159,7 @@ export function handleWishForm({
         form,
         input
       );
+      setInactivityTimeout();
     }
   });
 }
