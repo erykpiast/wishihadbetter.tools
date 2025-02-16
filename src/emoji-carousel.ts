@@ -131,7 +131,16 @@ export function createEmojiCarousel(): {
 
   return {
     displayNext(): void {
-      const currentEmoji = getCurrentEmoji();
+      let currentEmoji = getCurrentEmoji();
+
+      if (!currentEmoji) {
+        return;
+      }
+
+      if (currentEmoji.tagName !== "LI") {
+        currentEmoji = currentEmoji.parentElement;
+      }
+
       if (currentEmoji && currentEmoji.previousElementSibling) {
         (currentEmoji.previousElementSibling as HTMLElement).scrollIntoView({
           behavior: "smooth",
