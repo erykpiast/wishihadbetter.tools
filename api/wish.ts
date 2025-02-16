@@ -43,10 +43,14 @@ export async function GET(req: Request): Promise<Response> {
   const cursor = searchParams.get("cursor");
 
   if (limit !== null && isNaN(Number(limit))) {
+    console.warn(`Invalid limit: ${limit}`);
+
     return Response.json({ error: "Invalid limit" }, { status: 400 });
   }
 
   if (cursor !== null && isNaN(Number(cursor))) {
+    console.warn(`Invalid cursor: ${cursor}`);
+
     return Response.json({ error: "Invalid cursor" }, { status: 400 });
   }
 
@@ -81,6 +85,8 @@ export async function POST(req: Request): Promise<Response> {
   const ipAddress = extractOriginalIp(req.headers.get("x-forwarded-for"));
 
   if (!ipAddress) {
+    console.warn("Missing IP address");
+
     return Response.json({ error: "Missing IP address" }, { status: 400 });
   }
 
@@ -91,9 +97,12 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     if (ipCount > 10) {
+      console.warn(`Rate limit exceeded for IP: ${ipAddress}`);
       return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
     }
   } catch (err) {
+    console.error(new Error("Redis error", { cause: err }));
+
     return Response.json(
       { error: "Service unavailable, sorry!" },
       { status: 503 }
@@ -113,10 +122,14 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   if (typeof wish !== "string") {
+    console.warn(`Missing wish field: ${wish}`);
+
     return Response.json({ error: "Missing wish field" }, { status: 400 });
   }
 
   if (wish.length < 5 || wish.length > 255) {
+    console.warn(`Invalid wish length: ${wish.length}`);
+
     return Response.json(
       { error: "Wish must be between 5 and 255 characters" },
       { status: 400 }
@@ -124,10 +137,14 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   if (typeof tool !== "string") {
+    console.warn(`Missing tool field: ${tool}`);
+
     return Response.json({ error: "Missing tool field" }, { status: 400 });
   }
 
   if (!KNOWN_TOOLS.includes(tool)) {
+    console.warn(`Unknown tool: ${tool}`);
+
     return Response.json(
       { error: "What's that, I don't know this tool!" },
       { status: 400 }
@@ -135,7 +152,9 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   if (wish === "test!") {
-    Response.json({ wish }, { status: 201 });
+    console.info("Test wish, skipping");
+
+    return Response.json({ wish }, { status: 201 });
   }
 
   const country = req.headers.get("X-Vercel-IP-Country");
