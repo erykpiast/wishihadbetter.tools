@@ -136,25 +136,29 @@ export function createEmojiCarousel(): {
 
   handleScrollEnd();
 
+  const displayNext = () => {
+    let currentEmoji = getCurrentEmoji();
+
+    if (!currentEmoji) {
+      return;
+    }
+
+    if (currentEmoji.tagName !== "LI") {
+      currentEmoji = currentEmoji.parentElement;
+    }
+
+    if (currentEmoji && currentEmoji.nextElementSibling) {
+      (currentEmoji.nextElementSibling as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  };
+
+  setTimeout(displayNext, 1500);
+
   return {
-    displayNext(): void {
-      let currentEmoji = getCurrentEmoji();
-
-      if (!currentEmoji) {
-        return;
-      }
-
-      if (currentEmoji.tagName !== "LI") {
-        currentEmoji = currentEmoji.parentElement;
-      }
-
-      if (currentEmoji && currentEmoji.nextElementSibling) {
-        (currentEmoji.nextElementSibling as HTMLElement).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-    },
+    displayNext,
     getCurrent(): string {
       const currentEmoji = getCurrentEmoji();
 
