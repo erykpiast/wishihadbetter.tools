@@ -75,6 +75,7 @@ export function handleWishForm({
       onInputInactivity();
       setTimeout(() => {
         input?.scrollIntoView({ behavior: "smooth", block: "center" });
+        setInactivityTimeout();
       }, 100);
     }, 5000);
   }
